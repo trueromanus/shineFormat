@@ -15,6 +15,8 @@ function assertThrow( func, args ) {
 }
 function runTests( arr ) {
 	var result = "";
+	var completedCount = 0;
+	var failedCount = 0;
 
 	for ( var i in arr ) {
 		var test = arr[i];
@@ -22,10 +24,14 @@ function runTests( arr ) {
 			test.func();
 		} catch ( x ) {
 			result += "[" + test.name + "] Failed: " + x.message + "\n";
+			failedCount++;
 			continue;
 		}
 		result += "[" + test.name + "] Complete!\n";
+		completedCount++;
 	}
+
+	result += "\nTotal results \nCompleted " + completedCount + "\nFailed " + failedCount;
 
 	return result;
 }
@@ -220,6 +226,224 @@ function test_formatReplace_throw_newCharacters_null() {
 		shineFormat.formatReplace,
 		["", "", null]
 	);
+}
+
+function test_formatReplace_throw_newCharacters_null() {
+	assertThrow(
+		shineFormat.formatReplace,
+		["", "", null]
+	);
+}
+
+// Operations
+
+function test_operation_rightConcat_throw_result_undefined() {
+	assertThrow(
+		shineFormat.operations.rightConcat,
+		[undefined, ""]
+	);
+}
+function test_operation_rightConcat_throw_result_null() {
+	assertThrow(
+		shineFormat.operations.rightConcat,
+		[null, ""]
+	);
+}
+function test_operation_rightConcat_throw_concatString_undefined() {
+	assertThrow(
+		shineFormat.operations.rightConcat,
+		["", undefined]
+	);
+}
+function test_operation_rightConcat_throw_concatString_null() {
+	assertThrow(
+		shineFormat.operations.rightConcat,
+		["", null]
+	);
+}
+function test_operation_rightConcat_checkResult_emptyConcat() {
+	var source = "bcdef";
+
+	var result = shineFormat.operations.rightConcat( "a", source );
+
+	assertAreEqual( result, "abcdef" );
+}
+function test_operation_rightConcat_checkResult_ArrayParameter() {
+	var source = "bcdef{0}";
+
+	var result = shineFormat.operations.rightConcat( "a", source, ["."] );
+
+	assertAreEqual( result, "abcdef." );
+}
+function test_operation_rightConcat_checkResult_ObjectParameter() {
+	var source = "bcdef{test}";
+
+	var result = shineFormat.operations.rightConcat( "a", source, { test: "." } );
+
+	assertAreEqual( result, "abcdef." );
+}
+function test_operation_replace_throw_result_undefined() {
+	assertThrow(
+		shineFormat.operations.replace,
+		[undefined, "", ""]
+	);
+}
+function test_operation_replace_throw_result_null() {
+	assertThrow(
+		shineFormat.operations.replace,
+		[null, "", ""]
+	);
+}
+function test_operation_replace_throw_oldCharacters_undefined() {
+	assertThrow(
+		shineFormat.operations.replace,
+		["", undefined, ""]
+	);
+}
+function test_operation_replace_throw_oldCharacters_null() {
+	assertThrow(
+		shineFormat.operations.replace,
+		["", null, ""]
+	);
+}
+function test_operation_replace_throw_newCharacters_undefined() {
+	assertThrow(
+		shineFormat.operations.replace,
+		["", "", undefined]
+	);
+}
+function test_operation_replace_throw_newCharacters_null() {
+	assertThrow(
+		shineFormat.operations.replace,
+		["", "", null]
+	);
+}
+function test_operation_replace_checkResult() {
+	var result = shineFormat.operations.replace( "abc", "a", "b" );
+
+	assertAreEqual( result, "bbc" );
+}
+function test_operation_replaceSymbolTable_throw_result_undefined() {
+	assertThrow(
+		shineFormat.operations.replaceSymbolTable,
+		[undefined, "", ""]
+	);
+}
+function test_operation_replaceSymbolTable_throw_result_null() {
+	assertThrow(
+		shineFormat.operations.replaceSymbolTable,
+		[null, "", ""]
+	);
+}
+function test_operation_replaceSymbolTable_throw_oldCharaterTable_undefined() {
+	assertThrow(
+		shineFormat.operations.replaceSymbolTable,
+		["", undefined, ""]
+	);
+}
+function test_operation_replaceSymbolTable_throw_oldCharaterTable_null() {
+	assertThrow(
+		shineFormat.operations.replaceSymbolTable,
+		["", null, ""]
+	);
+}
+function test_operation_replaceSymbolTable_throw_newCharaterTable_undefined() {
+	assertThrow(
+		shineFormat.operations.replaceSymbolTable,
+		["", "", undefined]
+	);
+}
+function test_operation_replaceSymbolTable_throw_newCharaterTable_null() {
+	assertThrow(
+		shineFormat.operations.replaceSymbolTable,
+		["", "", null]
+	);
+}
+function test_operation_replaceSymbolTable_throw_newCharaterTable_oldCharaterTable_lengthMismatch() {
+	assertThrow(
+		shineFormat.operations.replaceSymbolTable,
+		["", "abc", "abcdef"]
+	);
+}
+function test_operation_replaceSymbolTable_checkResult() {
+	var result = shineFormat.operations.replaceSymbolTable( "abcdefgh", "abc", "ABC" );
+
+	assertAreEqual( result, "ABCdefgh" );
+}
+function test_operation_replaceStringTable_throw_result_undefined() {
+	assertThrow(
+		shineFormat.operations.replaceStringTable,
+		[undefined, [], []]
+	);
+}
+function test_operation_replaceStringTable_throw_result_null() {
+	assertThrow(
+		shineFormat.operations.replaceStringTable,
+		[null, [], []]
+	);
+}
+function test_operation_replaceStringTable_throw_oldStringTable_NotArray() {
+	assertThrow(
+		shineFormat.operations.replaceStringTable,
+		["", null, ""]
+	);
+}
+function test_operation_replaceStringTable_throw_newStringTable_NotArray() {
+	assertThrow(
+		shineFormat.operations.replaceStringTable,
+		["", [], null]
+	);
+}
+function test_operation_replaceStringTable_throw_newStringTable_oldStringTable_lengthMismatch() {
+	assertThrow(
+		shineFormat.operations.replaceStringTable,
+		["", ["abc", "blabla"], ["abcdef"]]
+	);
+}
+function test_operation_replaceStringTable_checkResult() {
+	var result = shineFormat.operations.replaceStringTable( "abcdefgh", ["abc"], ["ABC"] );
+
+	assertAreEqual( result, "ABCdefgh" );
+}
+function test_operation_wrap_throw_result_undefined() {
+	assertThrow(
+		shineFormat.operations.wrap,
+		[undefined, "", {}]
+	);
+}
+function test_operation_wrap_throw_result_null() {
+	assertThrow(
+		shineFormat.operations.wrap,
+		[null, "", {}]
+	);
+}
+function test_operation_wrap_throw_wrappedString_undefined() {
+	assertThrow(
+		shineFormat.operations.wrap,
+		["", undefined, {}]
+	);
+}
+function test_operation_wrap_throw_wrappedString_null() {
+	assertThrow(
+		shineFormat.operations.wrap,
+		["", null, {}]
+	);
+} function test_operation_wrap_throw_options_undefined() {
+	assertThrow(
+		shineFormat.operations.wrap,
+		["", "", undefined]
+	);
+}
+function test_operation_wrap_throw_options_null() {
+	assertThrow(
+		shineFormat.operations.wrap,
+		["", "", null]
+	);
+}
+function test_operation_wrap_checkResult() {
+	var result = shineFormat.operations.wrap( "abc", "b", { before: "(", after: ")" } );
+	
+	assertAreEqual( result, "a(b)c" );
 }
 
 var testResult = runTests( getAllTestMethods() );

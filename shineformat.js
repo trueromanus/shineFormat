@@ -7,18 +7,18 @@
 */
 
 function shineFormat() { }
+shineFormat.operations = function () { } // namespace for string operations
 
 shineFormat.startBracketParameter = '{';
 shineFormat.endBracketParameter = '}';
 
-shineFormat.concat = 1;
-shineFormat.replace = 2;
-shineFormat.replaceSymbolTable = 3;
-shineFormat.replaceStringTable = 4;
-shineFormat.wrap = 5;
+//Routine functions
 
 shineFormat.escapeRegExpCharacters = function escapeRegExpCharacters( str ) {
 	return str.replace( /[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&" );
+}
+shineFormat.argumentsToArray = function argumentsToArray( args ) {
+	return Array.prototype.slice.call( args );
 }
 shineFormat.getRegExpSearchGlobalExpression = function getRegExpSearchGlobalExpression( str ) {
 	return new RegExp( shineFormat.escapeRegExpCharacters( str ), "g" );
@@ -28,6 +28,9 @@ shineFormat.getKeyInBracket = function getKeyInBracket( key ) {
 
 	return shineFormat.startBracketParameter + key + shineFormat.endBracketParameter;
 }
+
+//Format functions
+
 shineFormat.formatNumeric = function formatNumeric( str, arr ) {
 	if ( str === undefined || str == null ) throw 'Argument str is undefined.';
 	if ( arr === undefined || arr == null ) throw 'Argument arr is undefined.';
@@ -74,76 +77,102 @@ shineFormat.formatReplace = function formatReplace( str, oldCharacters, newChara
 
 	return str.replace( shineFormat.getRegExpSearchGlobalExpression( oldCharacters ), newCharacters );
 }
+
+//Operations
+
+shineFormat.operations.rightConcat = function operations_concat( result, concatString ) {
+	if ( result == undefined || result == null ) throw 'result is undefined.';
+	if ( concatString == undefined || concatString == null ) throw 'concatString is undefined.';
+
+	for ( var l = 2; l < arguments.length; l++ ) {
+		var item = arguments[l];
+		if ( item instanceof Array ) {
+			concatString = shineFormat.formatNumeric( concatString, item );
+		} else {
+			concatString = shineFormat.formatKeys( concatString, item );
+		}
+	}
+
+	return result + concatString;
+}
+shineFormat.operations.replace = function operations_replace( result, oldCharacters, newCharacters ) {
+	if ( result == undefined || result == null ) throw 'result is undefined.';
+	if ( oldCharacters == undefined || oldCharacters == null ) throw 'oldCharacters is undefined.';
+	if ( newCharacters == undefined || newCharacters == null ) throw 'newCharacters is undefined.';
+
+	return shineFormat.formatReplace( result, oldCharacters, newCharacters );
+}
+shineFormat.operations.replaceSymbolTable = function operations_replaceSymbolTable( result, oldCharaterTable, newCharaterTable ) {
+	if ( result == undefined || result == null ) throw 'result is undefined.';
+	if ( oldCharaterTable == undefined || oldCharaterTable == null ) throw 'oldCharaterTable is undefined.';
+	if ( newCharaterTable == undefined || newCharaterTable == null ) throw 'newCharaterTable is undefined.';
+	if ( oldCharaterTable.length != newCharaterTable.length ) throw 'Replace character table do not match length in position ' + i + '.';
+
+	for ( var i = 0; i < oldCharaterTable.length; i++ ) {
+		result = shineFormat.formatReplace( result, oldCharaterTable[i], newCharaterTable[i] );
+	}
+	return result;
+}
+shineFormat.operations.replaceStringTable = function operations_replaceStringTable( result, oldStringTable, newStringTable ) {
+	if ( result == undefined || result == null ) throw 'result is undefined.';
+	if ( !( oldStringTable instanceof Array ) ) throw 'Incorrect type. Expected type is Array in position ' + i + '.';
+	if ( !( newStringTable instanceof Array ) ) throw 'Incorrect type. Expected type is Array in position ' + i + '.';
+	if ( oldStringTable.length != newStringTable.length ) throw 'Replace character table do not match length in position ' + i + '.';
+
+	for ( var l = 0; l < oldStringTable.length; l++ ) {
+		result = shineFormat.formatReplace( result, oldStringTable[l], newStringTable[l] );
+	}
+	return result;
+}
+shineFormat.operations.wrap = function operations_wrap( result, wrappedString, options ) {
+	if ( result == undefined || result == null ) throw 'result is undefined.';
+	if ( wrappedString == undefined || wrappedString == null ) throw 'wrappedString is undefined.';
+	if ( options == undefined || options == null ) throw 'options is undefined.';
+
+	return shineFormat.formatWrap( result, wrappedString, options );
+}
+
+//Combined functions
+
 shineFormat.pipeline = function pipeline() {
 	if ( arguments.length == 0 ) throw 'Arguments is empty.';
 
 	var result = arguments[0];
 
 	for ( var i = 1; i < arguments.length ; i++ ) {
-		var command = arguments[i];
+		var operationData = arguments[i];
 
-		if ( command instanceof Array ) {
-			if ( command.length == 0 ) throw new 'Array in position ' + i + ' is empty.';
+		if ( operationData instanceof Array ) {
+			if ( operationData.length == 0 ) throw new 'Array in position ' + i + ' is empty.';
 
-			switch ( command[0] ) {
-				case shineFormat.concat:
-					var resultString = command[1];
-					if ( command.length > 2 ) {
-						for ( var l = 2; l < command.length; l++ ) {
-							var item = command[l];
-							if ( item instanceof Array ) {
-								resultString = shineFormat.formatNumeric( resultString, item );
-							} else {
-								resultString = shineFormat.formatKeys( resultString, item );
-							}
-						}
-					}
-					result += resultString;
-					break;
-				case shineFormat.replace:
-					if ( command.length < 3 ) throw 'Incorrect data set in position ' + i + '.';
-
-					var oldCharacters = command[1];
-					var newCharacters = command[2];
-					result = shineFormat.formatReplace( result, oldCharacters, newCharacters );
-					break;
-				case shineFormat.replaceSymbolTable:
-					if ( command.length < 3 ) throw 'Incorrect data set in position ' + i + '.';
-
-					var oldCharaterTable = command[1];
-					var newCharaterTable = command[2];
-					if ( oldCharaterTable.length != newCharaterTable.length ) throw 'Replace character table do not match length in position ' + i + '.';
-
-					for ( var l = 0; l < oldCharaterTable.length; l++ ) {
-						result = shineFormat.formatReplace( result, oldCharaterTable[l], newCharaterTable[l] );
-					}
-					break;
-				case shineFormat.replaceStringTable:
-					if ( command.length < 3 ) throw 'Incorrect data set in position ' + i + '.';
-
-					var oldStringTable = command[1];
-					var newStringTable = command[2];
-					if ( !( oldStringTable instanceof Array ) ) throw 'Incorrect type. Expected type is Array in position ' + i + '.';
-					if ( !( newStringTable instanceof Array ) ) throw 'Incorrect type. Expected type is Array in position ' + i + '.';
-					if ( oldStringTable.length != newStringTable.length ) throw 'Replace character table do not match length in position ' + i + '.';
-
-					for ( var l = 0; l < oldStringTable.length; l++ ) {
-						result = shineFormat.formatReplace( result, oldStringTable[l], newStringTable[l] );
-					}
-					break;
-				case shineFormat.wrap:
-					var wrappedString = command[1];
-					var options = command[2];
-					result = shineFormat.formatWrap( result, wrappedString, options );
-					break;
-				default: throw 'Incorrect command type in position ' + i + '.';
+			var operationName = operationData[0];
+			if ( operationName in shineFormat.operations ) {
+				var args = operationData.slice( 1 );
+				args.splice( 0, 0, result );
+				result = shineFormat.operations[operationName].apply( null, args );
+			} else {
+				throw 'Incorrect operation in position ' + i + '.';
 			}
 		}
 	}
 
 	return result;
 }
+
+//String prototype extensions
+
 String.prototype.pipeline = function pipeline() {
-	var argumentsArray = Array.prototype.slice.call( arguments );
-	return shineFormat.pipeline.apply( null, [this].concat( argumentsArray ) );
+	return shineFormat.pipeline.apply( null, [this].concat( shineFormat.argumentsToArray( arguments ) ) );
+}
+String.prototype.nformat = function nformat() {
+	return shineFormat.formatNumeric.apply( null, [this].concat( shineFormat.argumentsToArray( arguments ) ) );
+}
+String.prototype.kformat = function kformat() {
+	return shineFormat.formatKeys.apply( null, [this].concat( shineFormat.argumentsToArray( arguments ) ) );
+}
+String.prototype.wrap = function wrap() {
+	return shineFormat.formatWrap.apply( null, [this].concat( shineFormat.argumentsToArray( arguments ) ) );
+}
+String.prototype.replaceAll = function replaceAll() {
+	return shineFormat.formatReplace.apply( null, [this].concat( shineFormat.argumentsToArray( arguments ) ) );
 }
