@@ -1,0 +1,27 @@
+{
+  "name": "shineformat",
+  "version": "1.0.0",
+  "description": "Some JavaScript functions for string formatting",
+  "main": "shineFormat.js",
+  "dependencies": {
+    "npm": "^1.4.14"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/trueromanus/shineFormat"
+  },
+  "keywords": [
+    "string",
+    "formatting"
+  ],
+  "author": "Roman Vladimirov <trueromanus@gmail.com> (http://githib.com/trueromanus)",
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/trueromanus/shineFormat/issues"
+  },
+  "homepage": "https://github.com/trueromanus/shineFormat"
+}
