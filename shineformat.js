@@ -1,8 +1,10 @@
 /*
 	shineFormat
 	
-	Some functions for string formatting.
+	version 1.0.1
 	
+	Some functions for string formatting.
+		
 	Copyright (c) 2015 RomanAsylum
 */
 

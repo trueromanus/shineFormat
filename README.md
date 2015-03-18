@@ -70,3 +70,6 @@ Replace all occurrences
 ##### shineFormat.replace ( "1. Apple 2. Android", "A","a" )
 ##### "1. Apple 2. Android".replaceAll ( "A","a" )
 1. apple 2. android
+
+### Install via npm
+npm install shineformat
